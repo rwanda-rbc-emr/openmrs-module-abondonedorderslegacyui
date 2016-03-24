@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module configVersion="1.2">
+
+	<!-- Module Properties -->
+	<id>abondonedorderslegacyui</id>
+	<name>Abandoned Orders Legacy UI Module</name>
+	<version>1.0-SNAPSHOT</version>
+	<package>org.openmrs.module.abondonedorderslegacyui</package>
+	<author>k-joseph</author>
+	<description>
+		Avails abondoned orders legacy UI from Platform 1.9.x
+	</description>
+	<updateURL>https://modules.openmrs.org/modules/download/abondonedorderslegacyui/update.rdf</updateURL>
+	<require_version>1.11.5</require_version>
+	<!-- / Module Properties -->
+
+	
+	<!-- Required Modules -->
+	<require_modules>
+																											
+		<require_module version="1.0-beta">
+			org.openmrs.module.mohorderentrybridge
+		</require_module>
+			
+	</require_modules>
+	<!-- / Required Modules -->
+	
+	<!-- Module Activator -->
+	<activator>org.openmrs.module.abondonedorderslegacyui.AbandonedOrdersLegacyUIActivator</activator>
+	
+	
+	<!-- Adds link to admin page -->
+	<extension>
+		<point>org.openmrs.admin.list</point>
+		<class>org.openmrs.module.abondonedorderslegacyui.extension.html.AdminList</class>
+	</extension>
+	
+	<!-- Maps hibernate file's, if present -->
+	<mappingFiles>
+				
+		AbandonedOrdersLegacyUI.hbm.xml
+				
+	</mappingFiles>
+
+	<!-- Internationalization -->
+	<!-- All message codes should start with abondonedorderslegacyui. -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>
+	<messages>
+		<lang>fr</lang>
+		<file>messages_fr.properties</file>
+	</messages>
+	<messages>
+		<lang>es</lang>
+		<file>messages_es.properties</file>
+	</messages>
+	<!-- /Internationalization -->
+
+</module>
+
