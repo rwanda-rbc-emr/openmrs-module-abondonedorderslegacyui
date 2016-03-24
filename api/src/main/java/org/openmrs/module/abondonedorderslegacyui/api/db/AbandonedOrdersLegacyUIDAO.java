@@ -13,14 +13,28 @@
  */
 package org.openmrs.module.abondonedorderslegacyui.api.db;
 
+import java.util.List;
+
+import org.openmrs.Concept;
+import org.openmrs.Encounter;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
+import org.openmrs.Patient;
+import org.openmrs.User;
+import org.openmrs.api.db.DAOException;
 import org.openmrs.module.abondonedorderslegacyui.api.AbandonedOrdersLegacyUIService;
 
 /**
  *  Database methods for {@link AbandonedOrdersLegacyUIService}.
  */
 public interface AbandonedOrdersLegacyUIDAO {
-	
+
+	public <Ord extends Order> List<Ord> getOrders(Class<Ord> orderClassType, List<Patient> patients,
+	        List<Concept> concepts, List<User> orderers, List<Encounter> encounters,
+	        List<OrderType> orderTypes);
 	/*
 	 * Add DAO methods here
 	 */
+
+	public List<OrderType> getAllOrderTypes(boolean includeRetired) throws DAOException;
 }

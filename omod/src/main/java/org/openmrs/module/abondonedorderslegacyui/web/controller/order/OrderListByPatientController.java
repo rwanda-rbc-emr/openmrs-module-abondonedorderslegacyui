@@ -31,178 +31,145 @@ import org.openmrs.PersonName;
 import org.openmrs.api.APIException;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.PatientService;
-import org.openmrs.api.OrderService.ORDER_STATUS;
 import org.openmrs.api.context.Context;
+import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.abondonedorderslegacyui.api.AbandonedOrdersLegacyUIService;
+import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.web.WebConstants;
-import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.SimpleFormController;
-import org.springframework.web.servlet.view.RedirectView;
 
-public class OrderListByPatientController extends SimpleFormController {
-	
+public class OrderListByPatientController {
+
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
-	/**
-	 * Allows for Integers to be used as values in input tags. Normally, only strings and lists are
-	 * expected
-	 * 
-	 * @see org.springframework.web.servlet.mvc.BaseCommandController#initBinder(javax.servlet.http.HttpServletRequest,
-	 *      org.springframework.web.bind.ServletRequestDataBinder)
-	 */
-	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
-		super.initBinder(request, binder);
-		//binder.registerCustomEditor(java.lang.Integer.class, new CustomNumberEditor(java.lang.Integer.class, true));
+
+	public ModelMap get_orderListByPatient(ModelMap model, HttpServletRequest request) {
+		Map<String, Object> refData = new HashMap<String, Object>();
+
+		// default empty Object
+		List<DrugOrder> orderList = new Vector<DrugOrder>();
+		Integer patientId;
+		try {
+			patientId = ServletRequestUtils.getIntParameter(request, "patientId");
+
+			boolean showAll = ServletRequestUtils.getBooleanParameter(request, "showAll", false);
+
+			// only fill the Object is the user has authenticated properly
+			if (Context.isAuthenticated()) {
+				if (patientId != null) {
+					// this is the default
+					// this.setFormView("/admin/orders/orderListByPatient");
+					PatientService ps = Context.getPatientService();
+					Patient p = ps.getPatient(patientId);
+
+					if (p != null) {
+						orderList = Context.getService(MoHOrderEntryBridgeService.class).getDrugOrdersByPatient(p);
+					} else {
+						log.error("Could not get a patient corresponding to patientId [" + patientId
+								+ "], thus could not get drug orders.");
+						throw new ServletException();
+					}
+				} else {
+					if (showAll) {
+						// this.setFormView("/admin/orders/orderDrugList");
+						AbandonedOrdersLegacyUIService as = Context.getService(AbandonedOrdersLegacyUIService.class);
+						// orderList = os.getDrugOrders();
+						orderList = as.getOrders(DrugOrder.class, null, null, null, null, null);
+					} else {
+						// this.setFormView("/admin/orders/choosePatient");
+					}
+				}
+
+			}
+			// Load international concept names so we can show the correct drug
+			// name
+			Map<Integer, String> conceptNames = new HashMap<Integer, String>();
+
+			for (Order order : orderList) {
+				Concept c = order.getConcept();
+				String cName = c.getBestName(Context.getLocale()).getName();
+				conceptNames.put(c.getConceptId(), cName);
+			}
+
+			model.addAttribute("conceptNames", conceptNames);
+
+			Patient p = null;
+
+			if (Context.isAuthenticated()) {
+				if (patientId != null) {
+					PatientService ps = Context.getPatientService();
+					p = ps.getPatient(patientId);
+
+					Set<PersonName> PersonNames = p.getNames();
+					Iterator i = PersonNames.iterator();
+					PersonName pm = (PersonName) i.next();
+
+					model.addAttribute("patient", p);
+					model.addAttribute("PersonName", pm);
+				}
+			}
+		} catch (ServletRequestBindingException e) {
+			e.printStackTrace();
+		} catch (ServletException e) {
+			e.printStackTrace();
+		}
+
+		return model;
 	}
-	
-	/**
-	 * The onSubmit function receives the form/command object that was modified by the input form
-	 * and saves it to the db
-	 * 
-	 * @see org.springframework.web.servlet.mvc.SimpleFormController#onSubmit(javax.servlet.http.HttpServletRequest,
-	 *      javax.servlet.http.HttpServletResponse, java.lang.Object,
-	 *      org.springframework.validation.BindException)
-	 */
-	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object obj,
-	        BindException errors) throws Exception {
-		
+
+	public void post_orderListByPatient(HttpServletRequest request, HttpServletResponse response,
+			BindException errors) {
 		HttpSession httpSession = request.getSession();
-		
-		String view = getFormView();
+
 		if (Context.isAuthenticated()) {
 			String[] orderList = ServletRequestUtils.getStringParameters(request, "orderId");
 			OrderService os = Context.getOrderService();
-			
+
 			String success = "";
 			String error = "";
-			
-			MessageSourceAccessor msa = getMessageSourceAccessor();
+
+			MessageSourceService msa = Context.getMessageSourceService();
 			String deleted = msa.getMessage("general.deleted");
 			String notDeleted = msa.getMessage("general.cannot.delete");
 			String ord = msa.getMessage("Order.title");
-			String voidReason = ServletRequestUtils.getRequiredStringParameter(request, "voidReason");
-			if (!StringUtils.hasLength(voidReason)) {
-				httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "general.voidReason.empty");
-				return showForm(request, response, errors);
-			}
-			for (String p : orderList) {
-				try {
-					os.voidOrder(os.getOrder(Integer.valueOf(p)), voidReason);
+			String voidReason;
+			try {
+				voidReason = ServletRequestUtils.getRequiredStringParameter(request, "voidReason");
+
+				if (!StringUtils.hasLength(voidReason)) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "general.voidReason.empty");
+					// return showForm(request, response, errors);
+				}
+				for (String p : orderList) {
+					try {
+						os.voidOrder(os.getOrder(Integer.valueOf(p)), voidReason);
+						if (!success.equals(""))
+							success += "<br/>";
+						success += ord + " " + p + " " + deleted;
+					} catch (APIException e) {
+						log.warn("Error deleting order", e);
+						if (!error.equals(""))
+							error += "<br/>";
+						error += ord + " " + p + " " + notDeleted;
+					}
+				}
+
+				if (ServletRequestUtils.getIntParameter(request, "patientId") != null)
+					// view += "?patientId=" +
+					// ServletRequestUtils.getIntParameter(request,
+					// "patientId");
 					if (!success.equals(""))
-						success += "<br/>";
-					success += ord + " " + p + " " + deleted;
-				}
-				catch (APIException e) {
-					log.warn("Error deleting order", e);
-					if (!error.equals(""))
-						error += "<br/>";
-					error += ord + " " + p + " " + notDeleted;
-				}
-			}
-			
-			view = getSuccessView();
-			if (ServletRequestUtils.getIntParameter(request, "patientId") != null)
-				view += "?patientId=" + ServletRequestUtils.getIntParameter(request, "patientId");
-			if (!success.equals(""))
-				httpSession.setAttribute(WebConstants.OPENMRS_MSG_ATTR, success);
-			if (!error.equals(""))
-				httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, error);
-		}
-		
-		return new ModelAndView(new RedirectView(view));
-	}
-	
-	/**
-	 * This is called prior to displaying a form for the first time. It tells Spring the
-	 * form/command object to load into the request
-	 * 
-	 * @see org.springframework.web.servlet.mvc.AbstractFormController#formBackingObject(javax.servlet.http.HttpServletRequest)
-	 */
-	protected Object formBackingObject(HttpServletRequest request) throws ServletException {
-		
-		//default empty Object
-		List<DrugOrder> orderList = new Vector<DrugOrder>();
-		Integer patientId = ServletRequestUtils.getIntParameter(request, "patientId");
-		boolean showAll = ServletRequestUtils.getBooleanParameter(request, "showAll", false);
-		
-		//only fill the Object is the user has authenticated properly
-		if (Context.isAuthenticated()) {
-			if (patientId != null) {
-				// this is the default
-				this.setFormView("/admin/orders/orderListByPatient");
-				PatientService ps = Context.getPatientService();
-				Patient p = ps.getPatient(patientId);
-				
-				if (p != null) {
-					OrderService os = Context.getOrderService();
-					orderList = os.getDrugOrdersByPatient(p, ORDER_STATUS.ANY, true);
-				} else {
-					log.error("Could not get a patient corresponding to patientId [" + patientId
-					        + "], thus could not get drug orders.");
-					throw new ServletException();
-				}
-			} else {
-				if (showAll) {
-					this.setFormView("/admin/orders/orderDrugList");
-					OrderService os = Context.getOrderService();
-					//orderList = os.getDrugOrders();
-					orderList = os.getOrders(DrugOrder.class, null, null, ORDER_STATUS.ANY, null, null, null);
-				} else {
-					this.setFormView("/admin/orders/choosePatient");
-				}
-			}
-			
-		}
-		
-		return orderList;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.springframework.web.servlet.mvc.SimpleFormController#referenceData(javax.servlet.http.HttpServletRequest, java.lang.Object, org.springframework.validation.Errors)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected Map referenceData(HttpServletRequest request, Object obj, Errors err) throws Exception {
-		
-		Map<String, Object> refData = new HashMap<String, Object>();
-		
-		// Load international concept names so we can show the correct drug name
-		Map<Integer, String> conceptNames = new HashMap<Integer, String>();
-		
-		List<Order> orderList = (List<Order>) obj;
-		
-		for (Order order : orderList) {
-			Concept c = order.getConcept();
-			String cName = c.getBestName(Context.getLocale()).getName();
-			conceptNames.put(c.getConceptId(), cName);
-		}
-		
-		refData.put("conceptNames", conceptNames);
-		
-		// Load information about this patient that we might need
-		Integer patientId = ServletRequestUtils.getIntParameter(request, "patientId");
-		Patient p = null;
-		
-		if (Context.isAuthenticated()) {
-			if (patientId != null) {
-				PatientService ps = Context.getPatientService();
-				p = ps.getPatient(patientId);
-				
-				Set<PersonName> PersonNames = p.getNames();
-				Iterator i = PersonNames.iterator();
-				PersonName pm = (PersonName) i.next();
-				
-				refData.put("patient", p);
-				refData.put("PersonName", pm);
+						httpSession.setAttribute(WebConstants.OPENMRS_MSG_ATTR, success);
+				if (!error.equals(""))
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, error);
+			} catch (ServletRequestBindingException e1) {
+				e1.printStackTrace();
 			}
 		}
-		
-		return refData;
+
 	}
 }

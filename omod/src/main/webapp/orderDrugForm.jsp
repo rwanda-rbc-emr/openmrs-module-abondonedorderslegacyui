@@ -3,7 +3,7 @@
 <openmrs:require privilege="Manage Orders" otherwise="/login.htm" redirect="/admin/orders/orderDrug.form" />
 
 <%@ include file="/WEB-INF/template/header.jsp" %>
-<%@ include file="localHeader.jsp" %>
+<%@ include file="template/localHeader.jsp"%>
 
 <c:if test="${order.patient != null}">
 	<a href="../../patientDashboard.form?patientId=${order.patient.patientId}"><openmrs:message code="patientDashboard.viewDashboard"/></a>

@@ -9,113 +9,121 @@
  */
 package org.openmrs.module.abondonedorderslegacyui.web.controller.order;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
+import org.openmrs.api.APIException;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
-import org.openmrs.propertyeditor.DrugEditor;
 import org.openmrs.util.OpenmrsConstants;
-import org.springframework.beans.propertyeditors.CustomBooleanEditor;
-import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.openmrs.web.WebConstants;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
-import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
-public class OrderDrugFormController extends OrderFormController {
-	
+public class OrderDrugFormController {
+
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
-	/**
-	 * Allows for Integers to be used as values in input tags. Normally, only strings and lists are
-	 * expected
-	 * 
-	 * @see org.springframework.web.servlet.mvc.BaseCommandController#initBinder(javax.servlet.http.HttpServletRequest,
-	 *      org.springframework.web.bind.ServletRequestDataBinder)
-	 */
-	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
-		super.initBinder(request, binder);
-		
-		binder.registerCustomEditor(Drug.class, new DrugEditor());
-		binder.registerCustomEditor(Double.class, new CustomNumberEditor(Double.class, true));
-		binder.registerCustomEditor(Boolean.class, new CustomBooleanEditor(false));
+
+	public ModelMap get_orderDrugForm(ModelMap model, HttpServletRequest request) {
+		OrderService os = Context.getOrderService();
+
+		DrugOrder order = null;
+
+		try {
+			if (Context.isAuthenticated()) {
+				Integer orderId = ServletRequestUtils.getIntParameter(request, "orderId");
+				if (orderId != null)
+					order = (DrugOrder) os.getOrder(orderId);
+			}
+
+			// if this is a new order, let's see if the user has picked a type
+			// yet
+			if (order == null) {
+				order = new DrugOrder();
+				Integer orderTypeId;
+				orderTypeId = ServletRequestUtils.getIntParameter(request, "orderTypeId");
+
+				if (orderTypeId != null) {
+					OrderType ot = os.getOrderType(orderTypeId);
+					order.setOrderType(ot);
+				}
+
+				Integer patientId = ServletRequestUtils.getIntParameter(request, "patientId");
+				if (patientId != null) {
+					Patient patient = Context.getPatientService().getPatient(patientId);
+					if (patient != null) {
+						order.setPatient(patient);
+					}
+				}
+			}
+		} catch (ServletRequestBindingException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("order", order);
+
+		return model;
 	}
-	
-	/**
-	 * The onSubmit function receives the form/command object that was modified by the input form
-	 * and saves it to the db
-	 * 
-	 * @see org.springframework.web.servlet.mvc.SimpleFormController#onSubmit(javax.servlet.http.HttpServletRequest,
-	 *      javax.servlet.http.HttpServletResponse, java.lang.Object,
-	 *      org.springframework.validation.BindException)
-	 */
-	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object obj,
-	        BindException errors) throws Exception {
-		String view;
-		DrugOrder order = (DrugOrder) obj;
-		
+
+	public void post_orderDrugForm(HttpServletRequest request, HttpServletResponse response, BindException errors) {
+		DrugOrder order = null;// = (DrugOrder) obj;//TODO
+
 		// TODO: for now, orderType will have to be hard-coded?
 		if (order.getOrderType() == null) {
 			order.setOrderType(Context.getOrderService().getOrderType(OpenmrsConstants.ORDERTYPE_DRUG));
 		}
-		
+
 		boolean ok = executeCommand(order, request);
 		if (ok) {
 			int patientId = order.getPatient().getPatientId();
-			view = getSuccessView() + "?patientId=" + patientId;
+			// view = getSuccessView() + "?patientId=" + patientId;
 		} else {
-			return showForm(request, response, errors);
+			// return showForm(request, response, errors);
 		}
-		
-		return new ModelAndView(new RedirectView(view));
 	}
-	
-	/**
-	 * This is called prior to displaying a form for the first time. It tells Spring the
-	 * form/command object to load into the request
-	 * 
-	 * @see org.springframework.web.servlet.mvc.AbstractFormController#formBackingObject(javax.servlet.http.HttpServletRequest)
-	 */
-	protected Object formBackingObject(HttpServletRequest request) throws ServletException {
-		
-		OrderService os = Context.getOrderService();
-		
-		DrugOrder order = null;
-		
-		if (Context.isAuthenticated()) {
-			Integer orderId = ServletRequestUtils.getIntParameter(request, "orderId");
-			if (orderId != null)
-				order = (DrugOrder) os.getOrder(orderId);
+
+	protected boolean executeCommand(Order order, HttpServletRequest request) {
+		if (!Context.isAuthenticated()) {
+			return false;
 		}
-		
-		// if this is a new order, let's see if the user has picked a type yet
-		if (order == null) {
-			order = new DrugOrder();
-			Integer orderTypeId = ServletRequestUtils.getIntParameter(request, "orderTypeId");
-			if (orderTypeId != null) {
-				OrderType ot = os.getOrderType(orderTypeId);
-				order.setOrderType(ot);
-			}
-			
-			Integer patientId = ServletRequestUtils.getIntParameter(request, "patientId");
-			if (patientId != null) {
-				Patient patient = Context.getPatientService().getPatient(patientId);
-				if (patient != null) {
-					order.setPatient(patient);
+
+		OrderService orderService = Context.getOrderService();
+
+		try {
+			if (request.getParameter("saveOrder") != null) {
+				orderService.saveOrder(order, null);
+				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.saved");
+			} else if (request.getParameter("voidOrder") != null) {
+				orderService.voidOrder(order, order.getVoidReason());
+				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.voidedSuccessfully");
+			} else if (request.getParameter("unvoidOrder") != null) {
+				orderService.unvoidOrder(order);
+				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.unvoidedSuccessfully");
+			} else if (request.getParameter("discontinueOrder") != null) {
+				try {
+					orderService.discontinueOrder(order, order.getOrderReason(), order.getEffectiveStopDate(),
+							order.getOrderer(), order.getEncounter());
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.discontinuedSuccessfully");
+			} else if (request.getParameter("undiscontinueOrder") != null) {
+				// orderService.undiscontinueOrder(order);//TODO Not supported
+				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.undiscontinuedSuccessfully");
 			}
+		} catch (APIException ex) {
+			request.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR, ex.getMessage());
+			return false;
 		}
-		
-		return order;
+
+		return true;
 	}
 }

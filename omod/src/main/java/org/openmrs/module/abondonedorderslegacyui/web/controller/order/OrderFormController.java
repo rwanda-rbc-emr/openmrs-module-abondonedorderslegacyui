@@ -28,12 +28,11 @@ import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.abondonedorderslegacyui.OrderTypeEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.EncounterEditor;
-import org.openmrs.propertyeditor.OrderTypeEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.UserEditor;
-import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.web.WebConstants;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -95,7 +94,7 @@ public class OrderFormController extends SimpleFormController {
 		
 		try {
 			if (request.getParameter("saveOrder") != null) {
-				orderService.saveOrder(order);
+				orderService.saveOrder(order, null);
 				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.saved");
 			} else if (request.getParameter("voidOrder") != null) {
 				orderService.voidOrder(order, order.getVoidReason());
@@ -104,10 +103,14 @@ public class OrderFormController extends SimpleFormController {
 				orderService.unvoidOrder(order);
 				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.unvoidedSuccessfully");
 			} else if (request.getParameter("discontinueOrder") != null) {
-				orderService.discontinueOrder(order, order.getDiscontinuedReason(), order.getDiscontinuedDate());
+				try {
+					orderService.discontinueOrder(order, order.getOrderReason(), order.getEffectiveStopDate(), order.getOrderer(), order.getEncounter());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.discontinuedSuccessfully");
 			} else if (request.getParameter("undiscontinueOrder") != null) {
-				orderService.undiscontinueOrder(order);
+				//orderService.undiscontinueOrder(order);//TODO Not supported
 				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Order.undiscontinuedSuccessfully");
 			}
 		}

@@ -3,7 +3,7 @@
 <openmrs:require privilege="Manage Orders" otherwise="/login.htm" redirect="/admin/orders/order.list" />
 
 <%@ include file="/WEB-INF/template/header.jsp" %>
-<%@ include file="localHeader.jsp" %>
+<%@ include file="template/localHeader.jsp"%>
 
 <openmrs:htmlInclude file="/scripts/dojoConfig.js" />
 <openmrs:htmlInclude file="/scripts/dojo/dojo.js" />

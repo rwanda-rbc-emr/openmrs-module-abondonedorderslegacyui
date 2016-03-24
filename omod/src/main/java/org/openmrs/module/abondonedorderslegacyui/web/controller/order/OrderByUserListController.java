@@ -28,6 +28,7 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.abondonedorderslegacyui.api.AbandonedOrdersLegacyUIService;
 import org.openmrs.web.WebConstants;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.StringUtils;
@@ -118,18 +119,17 @@ public class OrderByUserListController extends SimpleFormController {
 		List<Order> orderList = new Vector<Order>();
 		
 		String userOverride = ServletRequestUtils.getStringParameter(request, WebConstants.OPENMRS_USER_OVERRIDE_PARAM, "");
+		AbandonedOrdersLegacyUIService as = Context.getService(AbandonedOrdersLegacyUIService.class);
 		
 		//only fill the Object is the user has authenticated properly
 		if (StringUtils.hasText(userOverride) && Context.isAuthenticated()) {
 			UserService us = Context.getUserService();
 			User user = us.getUser(Integer.valueOf(userOverride));
 			if (user != null) {
-				OrderService os = Context.getOrderService();
-				orderList = os.getOrdersByUser(user);
+				orderList = as.getOrdersByUser(user);
 			}
 		} else if (Context.getAuthenticatedUser() != null) {
-			OrderService os = Context.getOrderService();
-			orderList = os.getOrdersByUser(Context.getAuthenticatedUser());
+			orderList = as.getOrdersByUser(Context.getAuthenticatedUser());
 		}
 		
 		return orderList;

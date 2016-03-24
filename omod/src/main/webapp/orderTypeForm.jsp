@@ -3,7 +3,7 @@
 <openmrs:require privilege="Manage Order Types" otherwise="/login.htm" redirect="/admin/orders/orderType.form" />
 
 <%@ include file="/WEB-INF/template/header.jsp" %>
-<%@ include file="localHeader.jsp" %>
+<%@ include file="template/localHeader.jsp"%>
 
 <h2><openmrs:message code="OrderType.title"/></h2>
 

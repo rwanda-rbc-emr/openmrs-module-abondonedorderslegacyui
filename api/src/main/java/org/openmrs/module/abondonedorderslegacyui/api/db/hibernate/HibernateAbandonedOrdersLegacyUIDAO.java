@@ -13,9 +13,20 @@
  */
 package org.openmrs.module.abondonedorderslegacyui.api.db.hibernate;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Expression;
+import org.openmrs.Concept;
+import org.openmrs.Encounter;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
+import org.openmrs.Patient;
+import org.openmrs.User;
+import org.openmrs.api.db.DAOException;
 import org.openmrs.module.abondonedorderslegacyui.api.db.AbandonedOrdersLegacyUIDAO;
 
 /**
@@ -39,4 +50,50 @@ public class HibernateAbandonedOrdersLegacyUIDAO implements AbandonedOrdersLegac
     public SessionFactory getSessionFactory() {
 	    return sessionFactory;
     }
+    
+    /**
+	 * Bringing this method back after being unscrewed out in 1.10.x
+	 */
+	public <Ord extends Order> List<Ord> getOrders(Class<Ord> orderClassType, List<Patient> patients,
+	        List<Concept> concepts, List<User> orderers, List<Encounter> encounters,
+	        List<OrderType> orderTypes) {
+		
+		Criteria crit = sessionFactory.getCurrentSession().createCriteria(orderClassType);
+		
+		if (patients.size() > 0)
+			crit.add(Expression.in("patient", patients));
+		
+		if (concepts.size() > 0)
+			crit.add(Expression.in("concept", concepts));
+		
+		// we are not checking the other status's here because they are 
+		// algorithm dependent  
+		
+		if (orderers.size() > 0)
+			crit.add(Expression.in("orderer", orderers));
+		
+		if (encounters.size() > 0)
+			crit.add(Expression.in("encounter", encounters));
+		
+		if (orderTypes.size() > 0)
+			crit.add(Expression.in("orderType", orderTypes));
+		
+		return crit.list();
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<OrderType> getAllOrderTypes(boolean includeRetired) throws DAOException {
+		log.debug("getting all order types");
+		
+		Criteria crit = sessionFactory.getCurrentSession().createCriteria(OrderType.class);
+		
+		if (includeRetired == false) {
+			// TODO implement OrderType.retired
+			crit.add(Expression.eq("retired", false));
+		}
+		
+		return crit.list();
+	}
+	
 }

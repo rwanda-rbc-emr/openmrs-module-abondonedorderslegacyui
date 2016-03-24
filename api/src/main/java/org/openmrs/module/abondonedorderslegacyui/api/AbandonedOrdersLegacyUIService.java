@@ -13,7 +13,19 @@
  */
 package org.openmrs.module.abondonedorderslegacyui.api;
 
+import java.util.List;
+
+import org.openmrs.Concept;
+import org.openmrs.Encounter;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
+import org.openmrs.Patient;
+import org.openmrs.User;
+import org.openmrs.annotation.Authorized;
+import org.openmrs.api.APIException;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.api.db.DAOException;
+import org.openmrs.util.PrivilegeConstants;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,4 +45,12 @@ public interface AbandonedOrdersLegacyUIService extends OpenmrsService {
 	 * Add service methods here
 	 * 
 	 */
+	public List<Order> getOrdersByUser(User user) throws APIException;
+
+	@Authorized(PrivilegeConstants.VIEW_ORDERS)
+	public <Ord extends Order> List<Ord> getOrders(Class<Ord> orderClassType, List<Patient> patients,
+	        List<Concept> concepts, List<User> orderers, List<Encounter> encounters,
+	        List<OrderType> orderTypes);
+	
+	public List<OrderType> getAllOrderTypes(boolean includeRetired) throws DAOException;
 }
