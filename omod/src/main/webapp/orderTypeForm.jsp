@@ -23,6 +23,15 @@
 		</td>
 	</tr>
 	<tr>
+		<td><openmrs:message code="abondonedorderslegacyui.class.name"/></td>
+		<td>
+			<spring:bind path="orderType.javaClassName">
+				<input type="text" name="className" value="${status.value}" size="35" />
+				<c:if test="${status.errorMessage != ''}"><span class="error">${status.errorMessage}</span></c:if>
+			</spring:bind>
+		</td>
+	</tr>
+	<tr>
 		<td valign="top"><openmrs:message code="general.description"/></td>
 		<td valign="top">
 			<spring:bind path="orderType.description">

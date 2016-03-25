@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.OrderType;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.abondonedorderslegacyui.api.AbandonedOrdersLegacyUIService;
 import org.openmrs.web.WebConstants;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
@@ -40,20 +40,39 @@ public class OrderTypeFormController {
 
 		if (orderType == null)
 			orderType = new OrderType();
-		
+
 		model.addAttribute("orderType", orderType);
-		
+
 		return model;
 	}
 
-	public void post_orderTypeForm(HttpServletRequest request, HttpServletResponse response, BindException errors) {
+	public void post_orderTypeForm(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession httpSession = request.getSession();
 
 		if (Context.isAuthenticated()) {
-			AbandonedOrdersLegacyUIService as = Context.getService(AbandonedOrdersLegacyUIService.class);
-			OrderType orderType = null;//TODO
-			Context.getOrderService().saveOrderType(orderType);
-			httpSession.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "OrderType.saved");
+			String name = request.getParameter("name");
+			String className = request.getParameter("className");
+			String description = request.getParameter("description");
+
+			if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(className)) {
+				try {
+					Class.forName(className);
+					OrderType orderType = new OrderType();
+					
+					orderType.setName(name);
+					orderType.setJavaClassName(className);
+					orderType.setDescription(description);
+					
+					Context.getOrderService().saveOrderType(orderType);
+					httpSession.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "OrderType.saved");
+				} catch (ClassNotFoundException e) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, className + "Doesn't doesn't exisit");
+				} catch (Exception e) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, e.getMessage());
+				}
+			} else {
+				httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "Name and Class Name are required");
+			}
 		}
 	}
 

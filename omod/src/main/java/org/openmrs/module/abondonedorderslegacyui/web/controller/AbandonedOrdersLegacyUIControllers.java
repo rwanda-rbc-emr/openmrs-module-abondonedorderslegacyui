@@ -13,6 +13,8 @@
  */
 package org.openmrs.module.abondonedorderslegacyui.web.controller;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,7 +27,6 @@ import org.openmrs.module.abondonedorderslegacyui.web.controller.order.OrderType
 import org.openmrs.module.abondonedorderslegacyui.web.controller.order.OrderTypeListController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -53,8 +54,8 @@ public class  AbandonedOrdersLegacyUIControllers {
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderList", method = RequestMethod.POST)
-	public void saveOrderList(ModelMap model, HttpServletRequest request, HttpServletResponse response, BindException errors) {
-		orderListController.post_orderList(request, response, errors);
+	public void saveOrderList(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+		orderListController.post_orderList(request, response);
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderTypeList", method = RequestMethod.GET)
@@ -63,8 +64,9 @@ public class  AbandonedOrdersLegacyUIControllers {
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderTypeList", method = RequestMethod.POST)
-	public void saveOrderTypeList(ModelMap model, HttpServletRequest request, HttpServletResponse response, BindException errors) {
-		orderTypeListController.post_orderTypeList(request, response, errors);
+	public void saveOrderTypeList(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+		orderTypeListController.post_orderTypeList(request, response);
+		redirectTo(response, "orderTypeList.list");
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderTypeForm", method = RequestMethod.GET)
@@ -73,8 +75,9 @@ public class  AbandonedOrdersLegacyUIControllers {
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderTypeForm", method = RequestMethod.POST)
-	public void saveOrderTypeForm(ModelMap model, HttpServletRequest request, HttpServletResponse response, BindException errors) {
-		orderTypeFormController.post_orderTypeForm(request, response, errors);
+	public void saveOrderTypeForm(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+		orderTypeFormController.post_orderTypeForm(request, response);
+		redirectTo(response, "orderTypeForm.form");
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderDrugList", method = RequestMethod.GET)
@@ -83,8 +86,9 @@ public class  AbandonedOrdersLegacyUIControllers {
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderDrugList", method = RequestMethod.POST)
-	public void saveOrderDrugList(ModelMap model, HttpServletRequest request, HttpServletResponse response, BindException errors) {
-		orderDrugListController.post_orderDrugList(request, response, errors);
+	public void saveOrderDrugList(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+		orderDrugListController.post_orderDrugList(request, response);
+		redirectTo(response, "orderDrugList.list");
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderListByPatient", method = RequestMethod.GET)
@@ -93,7 +97,16 @@ public class  AbandonedOrdersLegacyUIControllers {
 	}
 	
 	@RequestMapping(value = "/module/abondonedorderslegacyui/orderListByPatient", method = RequestMethod.POST)
-	public void saveOrderListByPatient(ModelMap model, HttpServletRequest request, HttpServletResponse response, BindException errors) {
-		orderListByPatientController.post_orderListByPatient(request, response, errors);
+	public void saveOrderListByPatient(ModelMap model, HttpServletRequest request, HttpServletResponse response) {
+		orderListByPatientController.post_orderListByPatient(request, response);
+		redirectTo(response, "orderListByPatient.list");
+	}
+	
+	private void redirectTo(HttpServletResponse response, String url) {
+		try {
+			response.sendRedirect(url);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

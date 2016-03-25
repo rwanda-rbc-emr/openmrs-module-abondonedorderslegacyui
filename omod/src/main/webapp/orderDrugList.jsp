@@ -7,8 +7,8 @@
 
 <h2><openmrs:message code="Order.drug.manage.title"/></h2>	
 
-<a href="order.form"><openmrs:message code="Order.add"/></a> 
-<a href="orderDrug.form"><openmrs:message code="Order.drug.add"/></a><br />
+<a href="orderForm.form"><openmrs:message code="Order.add"/></a> 
+<a href="orderDrugForm.form"><openmrs:message code="Order.drug.add"/></a><br />
 
 <br />
 
@@ -41,7 +41,7 @@
 						</td>
 					</c:if>
 					<td valign="top">
-						<a href="orderDrug.form?orderId=${order.orderId}">
+						<a href="orderDrugForm.form?orderId=${order.orderId}">
 							${order.drug.name}
 						</a>
 					</td>

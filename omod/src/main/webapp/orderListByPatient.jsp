@@ -16,7 +16,7 @@
 
 <h2><openmrs:message code="Order.list.patient.title" arguments="${patient.patientId},${personName.familyName},${personName.givenName},${personName.middleName}" /></h2>
 
-<a href="orderDrug.form?patientId=${patient.patientId}"><openmrs:message code="Order.drug.place.patient"/></a>
+<a href="orderDrugForm.form?patientId=${patient.patientId}"><openmrs:message code="Order.drug.place.patient"/></a>
 <br />
 
 <span class="boxHeader">
@@ -47,7 +47,7 @@
 						</c:if>
 					</td>
 					<td valign="top">
-						<a href="orderDrug.form?orderId=${order.orderId}">
+						<a href="orderDrugForm.form?orderId=${order.orderId}">
 							${order.drug.name}
 						</a>
 					</td>

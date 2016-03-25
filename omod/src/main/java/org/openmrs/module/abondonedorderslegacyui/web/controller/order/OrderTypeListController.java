@@ -73,7 +73,7 @@ public class OrderTypeListController {
 		return model;
 	}
 
-	public void post_orderTypeList(HttpServletRequest request, HttpServletResponse response, BindException errors) {
+	public void post_orderTypeList(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession httpSession = request.getSession();
 
 		if (Context.isAuthenticated()) {

@@ -7,7 +7,7 @@
 
 <h2><openmrs:message code="OrderType.manage.title"/></h2>	
 
-<a href="orderType.form"><openmrs:message code="OrderType.add"/></a> <br />
+<a href="orderTypeForm.form"><openmrs:message code="OrderType.add"/></a> <br />
 
 <br />
 
@@ -23,7 +23,7 @@
 			<tr <c:if test="${orderType.retired}">class="retired"</c:if>>
 				<td valign="top"><input type="checkbox" name="orderTypeId" value="${orderType.orderTypeId}"></td>
 				<td valign="top">
-					<a href="orderType.form?orderTypeId=${orderType.orderTypeId}">
+					<a href="orderTypeForm.form?orderTypeId=${orderType.orderTypeId}">
 					   ${orderType.name}
 					</a>
 				</td>

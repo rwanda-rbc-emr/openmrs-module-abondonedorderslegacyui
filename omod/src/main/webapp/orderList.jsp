@@ -16,8 +16,8 @@
 
 <h2><openmrs:message code="Order.manage.title"/></h2>	
 		
-<a href="order.form"><openmrs:message code="Order.add"/></a> 
-<a href="orderDrug.form"><openmrs:message code="Order.drug.add"/></a><br />
+<a href="orderForm.form"><openmrs:message code="Order.add"/></a> 
+<a href="orderDrugForm.form"><openmrs:message code="Order.drug.add"/></a><br />
 
 <br />
 
@@ -66,7 +66,7 @@
 					   ${order.instructions}
 					</td>
 					<td valign="top">
-						<a href="order.form?orderId=${order.orderId}">
+						<a href="orderForm.form?orderId=${order.orderId}">
 							<openmrs:message code="general.edit" />
 						</a>
 					</td>					

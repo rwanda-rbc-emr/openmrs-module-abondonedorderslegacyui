@@ -121,8 +121,7 @@ public class OrderListByPatientController {
 		return model;
 	}
 
-	public void post_orderListByPatient(HttpServletRequest request, HttpServletResponse response,
-			BindException errors) {
+	public void post_orderListByPatient(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession httpSession = request.getSession();
 
 		if (Context.isAuthenticated()) {
