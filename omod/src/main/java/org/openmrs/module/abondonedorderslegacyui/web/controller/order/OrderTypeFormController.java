@@ -21,7 +21,6 @@ import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.web.WebConstants;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindException;
 
 public class OrderTypeFormController {
 
@@ -53,16 +52,23 @@ public class OrderTypeFormController {
 			String name = request.getParameter("name");
 			String className = request.getParameter("className");
 			String description = request.getParameter("description");
+			OrderType orderType;
 
 			if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(className)) {
+				Integer orderTypeId = StringUtils.isNotBlank(request.getParameter("orderTypeId"))
+						? Integer.parseInt(request.getParameter("orderTypeId")) : null;
+
+				if (orderTypeId == null || Context.getOrderService().getOrderType(orderTypeId) == null) {
+					orderType = new OrderType();
+				} else {
+					orderType = Context.getOrderService().getOrderType(orderTypeId);
+				}
 				try {
 					Class.forName(className);
-					OrderType orderType = new OrderType();
-					
 					orderType.setName(name);
 					orderType.setJavaClassName(className);
 					orderType.setDescription(description);
-					
+
 					Context.getOrderService().saveOrderType(orderType);
 					httpSession.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "OrderType.saved");
 				} catch (ClassNotFoundException e) {
@@ -73,6 +79,18 @@ public class OrderTypeFormController {
 			} else {
 				httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "Name and Class Name are required");
 			}
+		}
+	}
+
+	public void delete_orderTypeForm(HttpServletRequest request, HttpServletResponse response) {
+		Integer orderTypeId = StringUtils.isNotBlank(request.getParameter("orderTypeId"))
+				? Integer.parseInt(request.getParameter("orderTypeId")) : null;
+
+		if (orderTypeId == null || Context.getOrderService().getOrderType(orderTypeId) == null) {
+			request.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR,
+					"OrderType You are trying to delete doesn't exisit");
+		} else {
+			Context.getOrderService().purgeOrderType(Context.getOrderService().getOrderType(orderTypeId));
 		}
 	}
 

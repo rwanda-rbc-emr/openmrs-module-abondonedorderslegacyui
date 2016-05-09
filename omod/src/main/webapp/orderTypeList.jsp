@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 
-<openmrs:require privilege="Manage Order Types" otherwise="/login.htm" redirect="/admin/orders/orderType.list" />
+<openmrs:require privilege="Manage Order Types" otherwise="/login.htm" redirect="/admin/orders/orderTypeList.list" />
 
 <%@ include file="/WEB-INF/template/header.jsp" %>
 <%@ include file="template/localHeader.jsp"%>
@@ -15,7 +15,7 @@
 <form method="post" class="box">
 	<table>
 		<tr>
-			<th> </th>
+			<th><input type="checkbox" onchange="jQuery(':checkbox').prop('checked', this.checked);"></th>
 			<th> <openmrs:message code="general.name" /> </th>
 			<th> <openmrs:message code="general.description" /> </th>
 		</tr>

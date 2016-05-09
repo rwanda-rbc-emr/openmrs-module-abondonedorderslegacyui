@@ -51,7 +51,9 @@
 	</c:if>
 </table>
 <br />
-<input type="submit" value="<openmrs:message code="OrderType.save"/>">
+<input type="submit" value="<openmrs:message code="OrderType.save"/>" onclick="jQuery('#form-action').val('Save')">
+<input type="submit" value="Delete" onclick="jQuery('#form-action').val('Delete')">
+<input id="form-action" name="formAction" type="hidden" value="Save">
 </form>
 
 <%@ include file="/WEB-INF/template/footer.jsp" %>

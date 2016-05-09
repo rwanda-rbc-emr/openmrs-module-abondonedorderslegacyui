@@ -27,7 +27,6 @@ import org.openmrs.module.abondonedorderslegacyui.api.AbandonedOrdersLegacyUISer
 import org.openmrs.web.WebConstants;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindException;
 
 public class OrderTypeListController {
 

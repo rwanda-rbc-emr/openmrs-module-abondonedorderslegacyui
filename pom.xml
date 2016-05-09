@@ -35,43 +35,17 @@
 	<properties>
 		<openMRSVersion>1.11.5</openMRSVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<mohorderentrybridgeVersion>1.0.1</mohorderentrybridgeVersion>
 	</properties>
 
 	<dependencyManagement>
-		<dependencies>
-		
-			<!--
-			Libraries to add as dependencies with compile or runtime scope:
-			Find matching dependencies in the maven central repository.
+		<dependencies>	
 			<dependency>
-				<groupId>org.other.library</groupId>
-				<artifactId>library-name</artifactId>
-				<version>library.version</version>
-				<scope>compile</scope>
-			</dependency>
-			-->
-			
-						
-			<!-- Begin OpenMRS modules -->
-			
-						
-			<dependency>
-			
-				<groupId>org.openmrs.module</groupId>
-												
-				<artifactId>mohorderentrybridge-api</artifactId>
-																								
-				<version>1.0-beta</version>
-												
+				<groupId>org.openmrs.module</groupId>					
+				<artifactId>mohorderentrybridge-api</artifactId>											
+				<version>${mohorderentrybridgeVersion}</version>		
 				<scope>provided</scope>
-				
 			</dependency>
-						
-			<!-- End OpenMRS modules -->
-			
-
-			<!-- Begin OpenMRS core -->
-			
 			<dependency>
 				<groupId>org.openmrs.api</groupId>
 				<artifactId>openmrs-api</artifactId>
