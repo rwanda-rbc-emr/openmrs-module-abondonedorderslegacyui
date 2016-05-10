@@ -8,29 +8,38 @@
 <h2><openmrs:message code="abondonedorderslegacyui.conceptSet.other.objects"/></h2>	
 
 <openmrs:message code="abondonedorderslegacyui.conceptSet.other.help"/>
+<br />
+<openmrs:message code="abondonedorderslegacyui.conceptSet.other.configuration.setMembers.help"/>
+<br />
+<br />
 
 <h3><openmrs:message code="abondonedorderslegacyui.conceptSet.other.configuration"/></h3>
-<form>
+
+<form method="post">
 	<table>
 		<tr>
 			<th><openmrs:message code="abondonedorderslegacyui.conceptSet.other.attribute"/></th>
+			<th><openmrs:message code="abondonedorderslegacyui.conceptSet.other.configuration.gp"/></th>
+			<th><openmrs:message code="abondonedorderslegacyui.conceptSet.other.set"/></th>
 			<th><openmrs:message code="abondonedorderslegacyui.conceptSet.other.configuration.edit"/></th>
-			<th><openmrs:message code="general.value"/></th>
 		</tr>
 		<tr>
 			<td><openmrs:message code="abondonedorderslegacyui.conceptSet.other.attribute.dosingUnits"/></td>
+			<td>${dosingUnits_GP.property}</td>
+			<td><openmrs:fieldGen formFieldName="dosingUnit" type="org.openmrs.Concept" val="${dosingUnitSet.concept.conceptId}"/></td>
 			<td><a href="../../dictionary/concept.form?conceptId=${dosingUnitSet.concept.conceptId}">${dosingUnitSet.name}</a></td>
-			<td><openmrs:fieldGen formFieldName="${dosingUnits_GP.property}" type="org.openmrs.Concept" val="${dosingUnits_GP.propertyValue}"/></td>
 		</tr>
 		<tr>
 			<td><openmrs:message code="abondonedorderslegacyui.conceptSet.other.attribute.quantityUnits"/></td>
+			<td>${quantityUnits_GP.property}</td>
+			<td><openmrs:fieldGen formFieldName="quantityUnit" type="org.openmrs.Concept" val="${quantityUnitsSet.concept.conceptId}"/></td>
 			<td><a href="../../dictionary/concept.form?conceptId=${quantityUnitsSet.concept.conceptId}">${quantityUnitsSet.name}</a></td>
-			<td><openmrs:fieldGen formFieldName="${quantityUnits_GP.property}" type="org.openmrs.Concept" val="${quantityUnits_GP.propertyValue}"/></td>
 		</tr>
 		<tr>
 			<td><openmrs:message code="abondonedorderslegacyui.conceptSet.other.attribute.routes"/></td>
+			<td>${routes_GP.property}</td>
+			<td><openmrs:fieldGen formFieldName="route" type="org.openmrs.Concept" val="${routesSet.concept.conceptId}"/></td>
 			<td><a href="../../dictionary/concept.form?conceptId=${routesSet.concept.conceptId}">${routesSet.name}</a></td>
-			<td><openmrs:fieldGen formFieldName="${routes_GP.property}" type="org.openmrs.Concept" val="${routes_GP.propertyValue}"/></td>
 		</tr>
 	</table>
 	<input type="submit" value='<openmrs:message code="general.submit"/>'>

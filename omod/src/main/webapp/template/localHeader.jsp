@@ -18,7 +18,7 @@
 			</a>
 		</li>
 	</openmrs:hasPrivilege>
-	<openmrs:hasPrivilege privilege="View Orders">
+	<openmrs:hasPrivilege privilege="Manage Orders,Add Orders,Edit Orders,Delete Orders,View Orders">
 		<li <c:if test='<%= request.getRequestURI().contains("otherDrugOrderAttributesForm") %>'>class="active"</c:if>>
 			<a href="${pageContext.request.contextPath}/module/abondonedorderslegacyui/otherDrugOrderAttributesForm.form">
 				<openmrs:message code="abondonedorderslegacyui.conceptSet.other.objects"/>

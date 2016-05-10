@@ -88,7 +88,7 @@ public class OrderFrequenciesController {
 		}
 	}
 
-	public void deleteOrderFrequency(HttpServletRequest request, HttpServletResponse response) {
+	public static void deleteOrderFrequency(HttpServletRequest request, HttpServletResponse response) {
 		Integer orderFrequencyId = StringUtils.isNotBlank(request.getParameter("orderFrequencyId"))
 				? Integer.parseInt(request.getParameter("orderFrequencyId")) : null;
 
