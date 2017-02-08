@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>abondonedorderslegacyui</artifactId>
-	<version>1.0</version>
+	<version>1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Abandoned Orders Legacy UI Module</name>
 	<description>Avails abondoned orders legacy UI from Platform 1.9.x</description>
